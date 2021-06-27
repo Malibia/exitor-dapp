@@ -11,7 +11,7 @@ import (
 
 	"exitor-dapp/internal/account"
 	"exitor-dapp/internal/account/account_preference"
-	"exitor-dapp/internal/checklist"
+	"exitor-dapp/internal/Createasset"
 	"exitor-dapp/internal/geonames"
 	"exitor-dapp/internal/mid"
 	"exitor-dapp/internal/platform/auth"
@@ -50,7 +50,7 @@ type AppContext struct {
 	AuthRepo          *user_auth.Repository
 	SignupRepo        *signup.Repository
 	InviteRepo        *invite.Repository
-	ChecklistRepo     *checklist.Repository
+	CreateassetRepo     *Createasset.Repository// from checklists, will review
 	GeoRepo           *geonames.Repository
 	Authenticator     *auth.Authenticator
 	StaticDir         string
@@ -121,19 +121,19 @@ func APP(shutdown chan os.Signal, appCtx *AppContext) http.Handler {
 		sm.Add(loc)
 	}
 
-	// Register checklist management pages.
-	p := Checklists{
-		ChecklistRepo: appCtx.ChecklistRepo,
+	// Register Createasset management pages.
+	p := Createassets{
+		CreateassetRepo: appCtx.CreateassetRepo,
 		Redis:         appCtx.Redis,
 		Renderer:      appCtx.Renderer,
 	}
-	app.Handle("POST", "/checklists/:checklist_id/update", p.Update, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
-	app.Handle("GET", "/checklists/:checklist_id/update", p.Update, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
-	app.Handle("POST", "/checklists/:checklist_id", p.View, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
-	app.Handle("GET", "/checklists/:checklist_id", p.View, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasAuth())
-	app.Handle("POST", "/checklists/create", p.Create, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
-	app.Handle("GET", "/checklists/create", p.Create, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
-	app.Handle("GET", "/checklists", p.Index, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasAuth())
+	app.Handle("POST", "/Createassets/:Createasset_id/update", p.Update, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
+	app.Handle("GET", "/Createassets/:Createasset_id/update", p.Update, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
+	app.Handle("POST", "/Createassets/:Createasset_id", p.View, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
+	app.Handle("GET", "/Createassets/:Createasset_id", p.View, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasAuth())
+	app.Handle("POST", "/Createassets/create", p.Create, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
+	app.Handle("GET", "/Createassets/create", p.Create, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasRole(auth.RoleAdmin))
+	app.Handle("GET", "/Createassets", p.Index, mid.AuthenticateSessionRequired(appCtx.Authenticator), mid.HasAuth())
 
 	// Register user management pages.
 	us := Users{
