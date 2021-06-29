@@ -1,5 +1,5 @@
 {{define "title"}}Create an Account{{end}}
-{{define "description"}}Sign Up for free to our Software-as-a-Service solution. {{end}}
+{{define "description"}}Sign Up for free to start using Exitor. {{end}}
 {{define "style"}}
 
 {{end}}
@@ -129,6 +129,12 @@
                                                class="form-control form-control-user {{ ValidationFieldClass $.validationErrors "User.PasswordConfirm" }}"
                                                name="User.PasswordConfirm" value="{{ $.form.User.PasswordConfirm }}" placeholder="Repeat Password" required>
                                         {{template "invalid-feedback" dict "fieldName" "User.PasswordConfirm" "validationDefaults" $.validationDefaults "validationErrors" $.validationErrors }}
+                                    </div>
+                                    <div class="">
+                                        <input type="text"
+                                               class="form-control form-control-user {{ ValidationFieldClass $.validationErrors "User.WalletAddress" }}"
+                                               name="User.WalletAddress" value="{{ $.form.User.WalletAddress }}" placeholder" Your Algorand Wallet Address" required>
+                                        {{template "invalid-feedback" dict "fieldName" "User.WalletAddress" "validationDefaults" $.validationDefaults "validationErrors" $.validationErrors }}
                                     </div>
                                 </div>
 
