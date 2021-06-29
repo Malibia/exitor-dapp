@@ -9,7 +9,7 @@ import (
 )
 
 const algodAddress = "https://testnet-algorand.api.purestake.io/ps2"
-const psToken = "VVMcBsaSsU4XjxEq04FI79lRT5T2szf54WfjySUP"
+const psToken = ""
 
 const port = '';
 
