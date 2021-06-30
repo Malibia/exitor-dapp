@@ -1,6 +1,6 @@
 ### Exitor-dapp
 
-Business Exiting dApp on Algorand
+ Exiting dApp for Kenyan local businesses on Algorand
 
 
 To Do:
