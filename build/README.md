@@ -1,4 +1,4 @@
-```###/build folder```
+```/build folder```
 
 All Packaging and Continuous Integration
 
