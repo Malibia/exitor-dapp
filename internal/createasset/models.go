@@ -173,25 +173,25 @@ var CreateassetStatus_Values = []CreateassetStatus{
 // a CreateassetStatus_ValuesInterface returns the a created assetStatus options as a slice interface.
 func CreateassetStatus_ValuesInterface() []interface{} {
 	var l []interface{}
-	for _, v := range a created assetStatus_Values {
+	for _, v := range CreateassetStatus_Values {
 		l = append(l, v.String())
 	}
 	return l
 }
 
 // Scan supports reading the a created assetStatus value from the database.
-func (s *a created assetStatus) Scan(value interface{}) error {
+func (s *CreateassetStatus) Scan(value interface{}) error {
 	asBytes, ok := value.([]byte)
 	if !ok {
 		return errors.New("Scan source is not []byte")
 	}
 
-	*s = a created assetStatus(string(asBytes))
+	*s = CreateassetStatus(string(asBytes))
 	return nil
 }
 
 // Value converts the a created assetStatus value to be stored in the database.
-func (s a created assetStatus) Value() (driver.Value, error) {
+func (s CreateassetStatus) Value() (driver.Value, error) {
 	v := validator.New()
 	errs := v.Var(s, "required,oneof=active disabled")
 	if errs != nil {
@@ -202,7 +202,7 @@ func (s a created assetStatus) Value() (driver.Value, error) {
 }
 
 // String converts the a created assetStatus value to a string.
-func (s a created assetStatus) String() string {
+func (s CreateassetStatus) String() string {
 	return string(s)
 }
 
