@@ -41,6 +41,13 @@ import (
 	"exitor-dapp/internal/user_auth"
 	"exitor-dapp/internal/webroute"
 
+	"encoding/base64"
+
+	"github.com/algorand/go-algorand-sdk/client/algod"
+	"github.com/algorand/go-algorand-sdk/crypto"
+	"github.com/algorand/go-algorand-sdk/mnemonic"
+	"github.com/algorand/go-algorand-sdk/transaction"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
@@ -69,7 +76,32 @@ var build = "develop"
 // ie: export WEB_APP_ENV=dev
 var service = "WEB_APP"
 
+const algodAddress = "https://testnet-algorand.api.purestake.io/ps1"
+const psToken = "..."
+
+
+// Initialize throw-away account for this example - check
+// that it has funds before running the program
+const mnemonic = "..."
+const ownerAddress = "..."// Will hardcode this or derive it from mnemonic
+
 func main() {
+
+	// Initialize Algod and Algod.Client during Startup
+	var headers [] *algod.Header
+	headers = append(headers, &algod.Header{"X-API-Key", psToken})
+	algodClient, err := algod.MakeClientWithHeaders(algodAddress, "", headers)
+	if err != nil {
+		fmt.Printf("failed to make algod client: %s\n", err)
+		return
+	}
+
+	// Recover private key from the mnemonic
+	fromAddrPvtKey, err := mnemonic.ToPrivateKey(mnemonic)
+	if err != nil {
+		fmt.Printf("error getting suggested tx params: %s\n", err)
+	}
+
 
 	// =========================================================================
 	// Logging

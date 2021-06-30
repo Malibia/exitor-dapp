@@ -34,6 +34,12 @@
                                             {{template "invalid-feedback" dict "fieldName" "AuthenticateRequest.Email" "validationDefaults" $.validationDefaults "validationErrors" $.validationErrors }}
                                         </div>
                                         <div class="form-group">
+                                            <input type="text"
+                                                   class="form-control form-control-user {{ ValidationFieldClass $.validationErrors "AuthenticateRequest.WalletAddress" }}"
+                                                   name="Algo Wallet Address" value="{{ $.form.WalletAddress }}" placeholder="Enter Algo Wallet Address...">
+                                            {{template "invalid-feedback" dict "fieldName" "AuthenticateRequest.WalletAddress" "validationDefaults" $.validationDefaults "validationErrors" $.validationErrors }}
+                                            </div>
+                                        <div class="form-group">
                                             <input type="password"
                                                    class="form-control form-control-user {{ ValidationFieldClass $.validationErrors "AuthenticateRequest.Password" }}"
                                                    name="Password" value="{{ $.form.Password }}" placeholder="Password">
@@ -48,7 +54,7 @@
                                         </div>
                                         <button class="btn btn-primary btn-user btn-block">
                                             Login
-                                        </button>
+                                        </button> 
                                         <hr>
                                     </form>
                                     <div class="text-center">

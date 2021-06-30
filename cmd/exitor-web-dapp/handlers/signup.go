@@ -28,7 +28,7 @@ type Signup struct {
 	Renderer   web.Renderer
 }
 
-// Step1 handles collecting the first detailed needed to create a new account.
+// Step1 handles collecting the first details needed to create a new account.
 func (h *Signup) Step1(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
 
 	ctxValues, err := webcontext.ContextValues(ctx)
@@ -74,6 +74,7 @@ func (h *Signup) Step1(ctx context.Context, w http.ResponseWriter, r *http.Reque
 			token, err := h.AuthRepo.Authenticate(ctx, user_auth.AuthenticateRequest{
 				Email:    req.User.Email,
 				Password: req.User.Password,
+				WalletAddress: req.User.WalletAddress, // Require Algorand Wallet Address
 			}, time.Hour, ctxValues.Now)
 			if err != nil {
 				return false, err

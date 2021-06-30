@@ -235,7 +235,7 @@ func (h *Account) Update(ctx context.Context, w http.ResponseWriter, r *http.Req
 		if req.ID == "" {
 			req.Name = &acc.Name
 			req.Address1 = &acc.Address1
-			req.Address2 = &acc.Address2
+			req.Address2 = &acc.Address2//require Algorand Wallet Address
 			req.City = &acc.City
 			req.Region = &acc.Region
 			req.Country = &acc.Country

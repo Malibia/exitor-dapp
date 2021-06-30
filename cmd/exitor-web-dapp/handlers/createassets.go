@@ -6,6 +6,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/algorand/go-algorand-sdk/client/algod"
+	"github.com/algorand/go-algorand-sdk/crypto"
+	"github.com/algorand/go-algorand-sdk/mnemonic"
+	"github.com/algorand/go-algorand-sdk/transaction"
+
 	"exitor-dapp/internal/Createasset"
 	"exitor-dapp/internal/platform/auth"
 	"exitor-dapp/internal/platform/datatable"
@@ -59,6 +64,7 @@ func (h *Createassets) Index(ctx context.Context, w http.ResponseWriter, r *http
 		})
 	}
 
+	// Below, we will transform to represent the parameters required for asset creation on Algorand
 	fields := []datatable.DisplayField{
 		{Field: "id", Title: "ID", Visible: false, Searchable: true, Orderable: true, Filterable: false},
 		{Field: "name", Title: "Createasset", Visible: true, Searchable: true, Orderable: true, Filterable: true, FilterPlaceholder: "filter Name"},
@@ -155,7 +161,23 @@ func (h *Createassets) Index(ctx context.Context, w http.ResponseWriter, r *http
 	return h.Renderer.Render(ctx, w, r, TmplLayoutBase, "createassets-index.gohtml", web.MIMETextHTMLCharsetUTF8, http.StatusOK, data)
 }
 
-// Create handles creating a new Createasset for the account.
+const algodAddress = 
+const psToken = ""
+
+// Create a throw-away account for this example - 
+// check that it has funds before running the program
+const mn = "..." // To include mnemonic
+const ownerAddress = "..."// can also be derived from mnemonic, I will hardcode to make it easier
+
+// Will create an algod client in the main.go file
+// It has to pass
+
+func () initAlgorand()
+
+func () assetAlgo(walletAddress, assetName, unitName, supp)
+
+// Create handles creating a new Asset for the account.
+// Also includes the Algorand Implementation for Asset Creation which has to succeed as well
 func (h *Createassets) Create(ctx context.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
 
 	ctxValues, err := webcontext.ContextValues(ctx)
@@ -198,6 +220,31 @@ func (h *Createassets) Create(ctx context.Context, w http.ResponseWriter, r *htt
 					}
 				}
 			}
+
+			// We make a transaction during the createasset operation
+			coinTotalIssuance := uint64(1000000)
+			coinDecimalsForDisplay := uint32(0)
+			accountsAreDefaultFrozen := false
+			managerAddress := ownerAddress
+			assetReserveAddress := ""
+			addressWithFreezingPrivileges := ownerAddress
+			addressWithClawbackPrivileges := ownerAddress
+			assetUnitName :+ "biztoken"
+			assetUrl := ""
+			assetMetadataHash := ""
+			tx, err := transaction.MakeAssetCreateTxn(ownerAddress, txParams.Fee, txParams.LastRound, txParams.LastRound+10, nil,
+			txParams.GenesisID, base64.stdEncoding.EncodeToString(txParams.GenesisHash),
+			coinTotalIssuance, coinDecimalsForDisplay, accountsAreDefaultFrozen, managerAddress,
+			assetReserveAddress, addressWithFreezingPrivileges, addressWithClawbackPrivileges,
+			assetUnitName, assetName, assetUrl, assetMetadataHash)
+
+			if err != nil {
+				fmt.Printf("Error creating transaction: %s\n", err)
+				return
+			}
+
+			// Sign the Transaction
+			_, bytes, err := crypto.SignTran
 
 			// Display a success message to the Createasset.
 			webcontext.SessionFlashSuccess(ctx,
