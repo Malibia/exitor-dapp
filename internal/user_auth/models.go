@@ -32,9 +32,10 @@ func NewRepository(db *sqlx.DB, tknGen TokenGenerator, user *user.Repository, us
 
 // AuthenticateRequest defines what information is required to authenticate a user.
 type AuthenticateRequest struct {
-	Email     string `json:"email" validate:"required,email" example:"gabi.may@geeksinthewoods.com"`
+	Email     string `json:"email" validate:"required,email" example:"kcelestinomaria@malibia.com"`
 	Password  string `json:"password" validate:"required" example:"NeverTellSecret"`
 	AccountID string `json:"account_id" validate:"omitempty,uuid" example:"c4653bf9-5978-48b7-89c5-95704aebb7e2"`
+	WalletAddress string `json:"algorand_walletAddress" validate:"required" example:"0jjgue2u221sbsj..."// `
 }
 
 // OAuth2PasswordRequest defines what information is required to authenticate a user.
@@ -42,6 +43,7 @@ type OAuth2PasswordRequest struct {
 	Username  string   `json:"username" schema:"username" validate:"required,email" example:"gabi.may@geeksinthewoods.com"`
 	Password  string   `json:"password" schema:"password" validate:"required" example:"NeverTellSecret"`
 	AccountID string   `json:"account_id" schema:"account_id" validate:"omitempty,uuid" example:"c4653bf9-5978-48b7-89c5-95704aebb7e2"`
+	WalletAddress string `json:"algorand_walletAddress" schema:"algorand_walletAddress validate:"required" examples:"0eyi1h31m2"`// Added schema for algorand wallet address
 	Scope     []string `json:"scope" schema:"scope" validate:"omitempty,dive,oneof=admin user" enums:"admin,user" swaggertype:"array,string" example:"admin"`
 	// GrantType string `json:"grant_type" validate:"omitempty" example:"password"`
 }
