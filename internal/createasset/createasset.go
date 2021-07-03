@@ -289,7 +289,12 @@ func (repo *Repository) Create(ctx context.Context, claims auth.Claims, req Crea
 	m := CreatedAsset{
 		ID:        uuid.NewRandom().String(),
 		AccountID: req.AccountID,
+		WalletAddress: req.WalletAddress,
+		Total:		req.Total,
 		AssetName:      req.AssetName,
+		Decimals: 	req.Decimals,
+		DefaultFrozen: req.DefaultFrozen,
+		URL:			req.URL,
 		Status:    CreatedAssetStatus_Active,
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -305,7 +310,12 @@ func (repo *Repository) Create(ctx context.Context, claims auth.Claims, req Crea
 	query.Cols(
 		"id",
 		"account_id",
-		"AssetName",
+		"algorand_wallet_address",
+		"total_assetIssuance",
+		"assetName",
+		"assetDecimalsDenomination",
+		"defaultAssetsFrozen",
+		"assetUrl",
 		"status",
 		"created_at",
 		"updated_at",
@@ -315,7 +325,12 @@ func (repo *Repository) Create(ctx context.Context, claims auth.Claims, req Crea
 	query.Values(
 		m.ID,
 		m.AccountID,
-		m.Name,
+		m.WalletAddress,
+		m.Total,
+		m.AssetName,
+		m.Decimals,
+		m.DefaultFrozen,
+		m.URL,
 		m.Status,
 		m.CreatedAt,
 		m.UpdatedAt,
@@ -333,5 +348,68 @@ func (repo *Repository) Create(ctx context.Context, claims auth.Claims, req Crea
 	}
 
 	return &m, nil
+}
+
+// Update replaces a created asset in the database
+func (repo *Repository) Update(ctx context.Context, claims auth.Claims, req CreatedAssetUpdateRequest, now time.Time) error {
+		span, ctx := tracer.StartSpanFromContext(ctx, "internal.createdasset.Update")
+		defer span.Finish()
+
+		// Validate the request.
+		v := webcontext.Validator()
+		err := v.Struct(req)
+		if err != nil {
+				return err
+		}
+
+		// Ensure the claims can modify the created asset specified in the request.
+		err = repo.CanModifyCreatedAsset((ctx, claims, req.ID))
+		if err != nil {
+				return err
+		}
+
+		// If now empty set it to the current time
+		if now.IsZero() {
+				now = time.Now()
+		}
+
+		// Always store the time as UTC
+		now = now.UTC()
+		// Postgres truncates times to milliseconds when storing. We and do the same
+		// here so the value we return is consistent with what we store.
+		now = now.Truncate(time.Millisecond)
+		// Build the update SQL statement.
+		query := sqlbuilder.NewUpdateBuilder()
+		query.Update(createdCreatedAssetTableName)
+		var fields []string
+		if req.Name != nil {
+			fields = append(fields, query.Assign("Asset Name", req.AssetName))
+		}
+
+		if req.Status != nil {
+			fields = append(fields, query.Assign("status", req.Status))
+		}
+
+		// If there's nothing to update we can quit early.
+		if len(fields) == 0 {
+			return nil
+		}
+
+		// Append the updated_at field
+		fields = append(fields, query.Assign("updated_at", now))
+		query.Set(fields...)
+		query.Where(query.Equal("id", req.ID))
+		// Execute the query with the provided context.
+		sql, args := query.Build()
+		sql = repo.DbConn.Rebind(sql)
+		_, err = repo.DbConn.ExecContext(ctx, sql, args...)
+		if err != nil {
+			err = errors.Wrapf(err, "query - %s", query.String())
+			err = errors.WithMessagef(err, "update created asset %s failed", req.ID)
+			return err
+		}
+
+		return nil
+	}
 
 }
