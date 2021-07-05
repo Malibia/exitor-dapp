@@ -253,7 +253,13 @@ func (repo *Repository) Read(ctx context.Context, claims auth.Claims, req Create
 // We have to construct the transaction first
 // We initialized AlgodClient in the main() function
 
-var tx
+// We will hard-code the mnemonic just to test this
+// implementation, however, this is not the best and most secure way
+// I am thinking of creating an asset tx, writing it to a file as unsigned
+// and a user typing in or writing it onto the file
+// then uploading it as signed, it's decoded and
+// the asset transaction is signed
+const mn = "..."
 
 // Makes a transaction on Algorand, and then reads it into the database at the same time
 func (repo *Repository) CreateAssetOnAlgorand(ctx context.Context, claims auth.Claims, req CreatedAssetCreate, now time.Time) (* CreatedAsset, error) {
@@ -272,7 +278,11 @@ func (repo *Repository) CreateAssetOnAlgorand(ctx context.Context, claims auth.C
 	}
 	// We need to derive the mnemonic of the
 	// account in order to sign a transaction
-
+	fromAddrPvtKey, err := mnemonic.ToPrivateKey(mn)
+	if err != nil {
+			fmt.Printf("error getting suggested tx params: %s\n", err)
+			return
+	}
 
 	// However, to ensure security and
 	// trustless Asset Tx, we will write the unsigned
@@ -287,7 +297,8 @@ func (repo *Repository) CreateAssetOnAlgorand(ctx context.Context, claims auth.C
 	}
 
 
-
+	//txParams = true
+	//txParams.Fee = 100
 	assetTotalIssuance := uint64(mAlgorand.Total)
 	assetDecimalsForDisplay := uint32(mAlgorand.Decimals)
 	accountsAreDefaultFrozen := mAlgorand.DefaultFrozen
@@ -299,7 +310,7 @@ func (repo *Repository) CreateAssetOnAlgorand(ctx context.Context, claims auth.C
 	assetUrl := mAlgorand.URL
 	assetMetadataHash := ""
 
-	tx, err := transaction.MakeAssetCreateTxn(mAlgorand.WalletAddress, assetTotalIssuance, assetDecimalsForDisplay,
+	tx, err := transaction.MakeAssetCreateTxn(mAlgorand.WalletAddress, txParams.Fee, assetTotalIssuance, assetDecimalsForDisplay,
 			accountsAreDefaultFrozen, managerAddress, assetReserveAddress, addressWithFreezingPrivileges, addressWithClawbackPrivileges,
 			assetName, assetUrl, assetMetadataHash)
 	if err != nil {
@@ -307,6 +318,25 @@ func (repo *Repository) CreateAssetOnAlgorand(ctx context.Context, claims auth.C
 			return
 	}
 
+	// This code signs Asset Tx using hard-coded mnemonic
+	_, bytes, err := crypto.SignTransaction(fromAddrPvtKey, tx)
+	if err != nil {
+			fmt.Printf("Failed to sign transaction: %s\n", err)
+			return
+	}
+
+
+	// Let's finally broadcast the Asset Tx to the network
+	txHeaders := append([]*algod.Header{}, &algod.Header{"Content-Type", "application/x-binary"})
+	sendResponse, err := algodClient.SendRawTransaction(bytes, txHeaders...)
+	if err != nil {
+			fmt.Printf("failed to send transaction: %s\n", err)
+			return
+	}
+
+	fmt.Printf("Transaction successful with ID: %s\n", sendResponse.TxID)
+
+	/*
 	unsignedTx := types.SignedTxn{
 		Txn: tx,
 	}
@@ -319,14 +349,14 @@ func (repo *Repository) CreateAssetOnAlgorand(ctx context.Context, claims auth.C
 	}
 	fmt.Printf("Failed in saving asset tx to file, error %s\n", err)
 
-	/*// Let's sign the transaction
+	/* Let's sign the transaction
 	_, bytes, err := crypto.SignTransaction()*/
 }
 
-
+/*
 func (repo *Repository) SignAssetTx(ctx context.Context, claims auth.Claims, req CreateAssetOnAlgorand, now time.Time) (*CreatedAsset, error) {
 	// First, let's read the unsigned asset transaction from file
-	dat, err := ioutil.ReadFile("./unsigned.txn")
+	/*dat, err := ioutil.ReadFile("./unsigned.txn")
 	if err != nil {
 		fmt.Printf("Error reading transaction from file: %s\n", err)
 		return
@@ -340,8 +370,10 @@ func (repo *Repository) SignAssetTx(ctx context.Context, claims auth.Claims, req
 	// Let's now sign the transaction for the asset creation process
 	// The next code should read the mnemonic passphrase that was entered offline and together with the wallet address
 	// It should then sign the Asset Tx using those credentials and destroy the file forever
-}
 
+	// Let's derive privkey from hard-coded mnemonic
+	
+}*/
 
 
 // Create inserts a new created asset into the database

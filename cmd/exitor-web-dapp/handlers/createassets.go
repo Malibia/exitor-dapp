@@ -67,7 +67,7 @@ func (h *Createassets) Index(ctx context.Context, w http.ResponseWriter, r *http
 	// Below, we will transform to represent the parameters required for asset creation on Algorand
 	fields := []datatable.DisplayField{
 		{Field: "id", Title: "ID", Visible: false, Searchable: true, Orderable: true, Filterable: false},
-		{Field: "name", Title: "Createasset", Visible: true, Searchable: true, Orderable: true, Filterable: true, FilterPlaceholder: "filter Name"},
+		{Field: "assetname", Title: "AssetName", Visible: true, Searchable: true, Orderable: true, Filterable: true, FilterPlaceholder: "filter Name"},
 		{Field: "status", Title: "Status", Visible: true, Searchable: true, Orderable: true, Filterable: true, FilterPlaceholder: "All Statuses", FilterItems: statusFilterItems},
 		{Field: "updated_at", Title: "Last Updated", Visible: true, Searchable: true, Orderable: true, Filterable: false},
 		{Field: "created_at", Title: "Created", Visible: true, Searchable: true, Orderable: true, Filterable: false},
@@ -80,7 +80,7 @@ func (h *Createassets) Index(ctx context.Context, w http.ResponseWriter, r *http
 			switch col.Field {
 			case "id":
 				v.Value = fmt.Sprintf("%s", q.ID)
-			case "name":
+			case "assetname":
 				v.Value = q.Name
 				v.Formatted = fmt.Sprintf("<a href='%s'>%s</a>", urlCreateassetsView(q.ID), v.Value)
 			case "status":
@@ -161,7 +161,7 @@ func (h *Createassets) Index(ctx context.Context, w http.ResponseWriter, r *http
 	return h.Renderer.Render(ctx, w, r, TmplLayoutBase, "createassets-index.gohtml", web.MIMETextHTMLCharsetUTF8, http.StatusOK, data)
 }
 
-const algodAddress = 
+const algodAddress = ""
 const psToken = ""
 
 // Create a throw-away account for this example - 
@@ -172,9 +172,68 @@ const ownerAddress = "..."// can also be derived from mnemonic, I will hardcode 
 // Will create an algod client in the main.go file
 // It has to pass
 
-func () initAlgorand()
 
-func () assetAlgo(walletAddress, assetName, unitName, supp)
+
+
+type SignTx struct {
+	Renderer web.Renderer
+}
+
+// Prompt the user for a passphrase,
+// so we can sign transaction
+/*func (s SignTx) FlashForPassphrase(ctx contex.Context, w http.ResponseWriter, r *http.Request, params map[string]string) error {
+	if r.Method == http.MethodGet {
+		webcontext.SessionFlashInfo(ctx,
+		"Please enter your Algorand Account Passphrase")
+	}
+
+	data := make(map[string]interface{})
+
+	type SignAssetTx struct {
+		walletAddress string `json:"algorand_wallet_address" validate:"required"`
+		passphrase string `json:"passphrase" validate:"required"`
+	}
+
+	req := new(SignAssetTx)
+	f := func() error {
+
+		if r.Method == http.MethodPost {
+			err := r.ParseForm()
+			if err != nil {
+					return err
+			}
+
+			decoder := schema.NewDecoder()
+			if err := decoder.Decode(req, r.PostForm); err != nil {
+					return err
+			}
+
+			if err := webcontext.Validator().Struct(req); err != nil {
+					if ne, ok := weberror.NewValidationError(ctx, err); ok {
+							data["validationErrors"] = ne.(*weberror.Error)
+							return nil
+					} else {
+							return err
+					}
+			}
+		}
+
+		return nil
+	}
+
+	if err := f(); err != nil {
+			return web.RenderError(ctx, w, r, err, h.Renderer, TmplLayoutBase, TmplContentErrorGeneric, web.MIMETextHTMLCharsetUTF8)
+	}
+
+	data["form"] = req
+
+	if verr, ok := weberror.NewValidationError(ctx, webcontext.Validator().Struct(SignAssetTx{})); ok {
+			data["validationDefaults"] = verr.(*weberror.Error)
+	}
+
+	return h.Renderer.Render(ctx, w, r,TmplLayoutBase, "flash-for-passphrase-message.gohtml", web.MIMETextHTMLCharsetUTF8, http.StatusOK, data)
+}
+*/
 
 // Create handles creating a new Asset for the account.
 // Also includes the Algorand Implementation for Asset Creation which has to succeed as well
@@ -270,7 +329,7 @@ func (h *Createassets) Create(ctx context.Context, w http.ResponseWriter, r *htt
 		data["validationDefaults"] = verr.(*weberror.Error)
 	}
 
-	return h.Renderer.Render(ctx, w, r, TmplLayoutBase, "Createassets-create.gohtml", web.MIMETextHTMLCharsetUTF8, http.StatusOK, data)
+	return h.Renderer.Render(ctx, w, r, TmplLayoutBase, "createassets-create.gohtml", web.MIMETextHTMLCharsetUTF8, http.StatusOK, data)
 }
 
 // View handles displaying a Createasset.

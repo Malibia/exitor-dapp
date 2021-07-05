@@ -338,6 +338,9 @@ func (repo *Repository) Create(ctx context.Context, claims auth.Claims, req Acco
 	return &a, nil
 }
 
+// A function to also create standalone account on Algorand
+
+
 // ReadByID gets the specified user by ID from the database.
 func (repo *Repository) ReadByID(ctx context.Context, claims auth.Claims, id string) (*Account, error) {
 	return repo.Read(ctx, claims, AccountReadRequest{
