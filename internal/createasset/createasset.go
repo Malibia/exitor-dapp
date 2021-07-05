@@ -3,10 +3,12 @@ package createasset
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"exitor-dapp/internal/platform/auth"
 	"exitor-dapp/internal/platform/web/webcontext"
+
 	"github.com/huandu/go-sqlbuilder"
 	"github.com/jmoiron/sqlx"
 	"github.com/pborman/uuid"
@@ -247,6 +249,63 @@ func (repo *Repository) Read(ctx context.Context, claims auth.Claims, req Create
 		return u, nil
 }
 
+// We have to construct the transaction first
+// We initialized AlgodClient in the main() function
+
+// Makes a transaction on Algorand, and then reads it into the database at the same time
+func (repo *Repository) CreateOnAlgorand(ctx context.Context, claims auth.Claims, req CreatedAssetCreate, now time.Time) (* CreatedAsset, error) {
+	mAlgorand := CreatedAsset{
+		ID:        uuid.NewRandom().String(),
+		AccountID: req.AccountID,
+		WalletAddress: req.WalletAddress,
+		Total:		req.Total,
+		AssetName:      req.AssetName,
+		Decimals: 	req.Decimals,
+		DefaultFrozen: req.DefaultFrozen,
+		URL:			req.URL,
+		Status:    CreatedAssetStatus_Active,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	// We need to derive the mnemonic of the
+	// account in order to sign a transaction
+
+
+	// However, to ensure security and
+	// trustless Asset Tx, we will write the unsigned
+	// Asset Tx to a file and the user will have to sign it
+	// offline
+
+	// Let's begin by constructing the transaction
+	/*txParams, err := algodClient.SuggestedParams().Do(context.Background())
+	if err != nil {
+		fmt.Printf
+	}*/
+
+
+	assetTotalIssuance := uint64(mAlgorand.Total)
+	assetDecimalsForDisplay := uint32(mAlgorand.Decimals)
+	accountsAreDefaultFrozen := mAlgorand.DefaultFrozen
+	managerAddress := mAlgorand.WalletAddress
+	assetReserveAddress := ""
+	addressWithFreezingPrivileges := mAlgorand.WalletAddress
+	addressWithClawbackPrivileges := mAlgorand.WalletAddress
+	assetName := mAlgorand.AssetName
+	assetUrl := mAlgorand.URL
+	assetMetadataHash := ""
+
+	tx, err := transaction.MakeAssetCreateTxn(mAlgorand.WalletAddress, assetTotalIssuance, assetDecimalsForDisplay,
+			accountsAreDefaultFrozen, managerAddress, assetReserveAddress, addressWithFreezingPrivileges, addressWithClawbackPrivileges,
+			assetName, assetUrl, assetMetadataHash)
+	if err != nil {
+			fmt.Printf("Error creating transaction: %\n", err)
+			return
+	}
+
+	// Let's sign the transaction
+	_, bytes, err := crypto.SignTransaction()
+}
+
 // Create inserts a new created asset into the database
 func (repo *Repository) Create(ctx context.Context, claims auth.Claims, req CreatedAssetCreateRequest, now time.Time) (*CreatedAsset, error) {
 		span, ctx := tracer.StartSpanFromContext(ctx, "internal.createdasset.Create")
@@ -349,6 +408,11 @@ func (repo *Repository) Create(ctx context.Context, claims auth.Claims, req Crea
 
 	return &m, nil
 }
+
+/* TO:DO a function that gets a created asset already issued in the database,
+and then records it onto the algorand blockchain */
+/* we could import the asset creation function already created in the purestake library */
+
 
 // Update replaces a created asset in the database
 func (repo *Repository) Update(ctx context.Context, claims auth.Claims, req CreatedAssetUpdateRequest, now time.Time) error {
