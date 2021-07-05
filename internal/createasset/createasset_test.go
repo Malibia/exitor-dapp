@@ -1,5 +1,5 @@
 /* Note: Changed from Createasset to createasset */
-package Createasset
+package createasset
 
 import (
 	"os"

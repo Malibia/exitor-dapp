@@ -14,6 +14,10 @@ import (
 	"golang.org/x/net/html"
 )
 
+type Passphrase struct {
+	Ren
+}
+
 // Example represents the example pages
 type Examples struct {
 	Renderer web.Renderer

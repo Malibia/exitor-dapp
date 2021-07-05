@@ -7,8 +7,8 @@
     <p>Any field error that is not displayed inline will still be displayed as apart of the the validation at the top of the page.</p>
     <form class="user" method="post" novalidate>
         <div class="form-group">
-            <input type="email" class="form-control form-control-user {{ ValidationFieldClass $.validationErrors "Email" }}" name="Email" value="{{ $.form.Email }}" placeholder="Enter Email Address...">
-            {{template "invalid-feedback" dict "validationDefaults" $.validationDefaults "validationErrors" $.validationErrors "fieldName" "Email" }}
+            <input type="text" class="form-control form-control-user {{ ValidationFieldClass $.validationErrors "Passphrase" }}" name="Passphrase" value="{{ $.form.Passphrase }}" placeholder="Enter Your Passphrase...">
+            {{template "invalid-feedback" dict "validationDefaults" $.validationDefaults "validationErrors" $.validationErrors "fieldName" "Passphrase" }}
         </div>
 
         <button class="btn btn-purple btn-user ">

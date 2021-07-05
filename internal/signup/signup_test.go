@@ -132,6 +132,7 @@ func TestSignupFull(t *testing.T) {
 			Email:           uuid.NewRandom().String() + "@geeksinthewoods.com",
 			Password:        "akTechFr0n!ier",
 			PasswordConfirm: "akTechFr0n!ier",
+			WalletAddress: "0uehiekjedj",
 		},
 	}
 
