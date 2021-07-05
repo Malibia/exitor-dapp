@@ -7,6 +7,7 @@ import (
 )
 
 
+
 // Makes a transaction on Algorand, and then reads it into the database at the same time
 func (repo *Repository) CreateOnAlgorand(ctx context.Context, claims auth.Claims, req CreatedAssetCreate, now time.Time) (* CreatedAsset, error) {
 	mAlgorand := CreatedAsset{
