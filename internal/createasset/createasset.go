@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"time"
 
 	"exitor-dapp/internal/platform/auth"
@@ -252,8 +253,10 @@ func (repo *Repository) Read(ctx context.Context, claims auth.Claims, req Create
 // We have to construct the transaction first
 // We initialized AlgodClient in the main() function
 
+var tx
+
 // Makes a transaction on Algorand, and then reads it into the database at the same time
-func (repo *Repository) CreateOnAlgorand(ctx context.Context, claims auth.Claims, req CreatedAssetCreate, now time.Time) (* CreatedAsset, error) {
+func (repo *Repository) CreateAssetOnAlgorand(ctx context.Context, claims auth.Claims, req CreatedAssetCreate, now time.Time) (* CreatedAsset, error) {
 	mAlgorand := CreatedAsset{
 		ID:        uuid.NewRandom().String(),
 		AccountID: req.AccountID,
@@ -277,10 +280,12 @@ func (repo *Repository) CreateOnAlgorand(ctx context.Context, claims auth.Claims
 	// offline
 
 	// Let's begin by constructing the transaction
-	/*txParams, err := algodClient.SuggestedParams().Do(context.Background())
+	txParams, err := algodClient.SuggestedParams().Do(context.Background())
 	if err != nil {
-		fmt.Printf
-	}*/
+		fmt.Printf("Error getting suggested tx params: %s\n", err)
+		return
+	}
+
 
 
 	assetTotalIssuance := uint64(mAlgorand.Total)
@@ -302,9 +307,42 @@ func (repo *Repository) CreateOnAlgorand(ctx context.Context, claims auth.Claims
 			return
 	}
 
-	// Let's sign the transaction
-	_, bytes, err := crypto.SignTransaction()
+	unsignedTx := types.SignedTxn{
+		Txn: tx,
+	}
+
+	// Let's save the unsigned transaction to file
+	err = ioutil.WriteFile("./unsigned.txn", msgpack.Encode(unsignedTx), 0644)
+	if err == nil {
+		fmt.Printf("Saved unsigned asset transaction to file\n")
+		return
+	}
+	fmt.Printf("Failed in saving asset tx to file, error %s\n", err)
+
+	/*// Let's sign the transaction
+	_, bytes, err := crypto.SignTransaction()*/
 }
+
+
+func (repo *Repository) SignAssetTx(ctx context.Context, claims auth.Claims, req CreateAssetOnAlgorand, now time.Time) (*CreatedAsset, error) {
+	// First, let's read the unsigned asset transaction from file
+	dat, err := ioutil.ReadFile("./unsigned.txn")
+	if err != nil {
+		fmt.Printf("Error reading transaction from file: %s\n", err)
+		return
+	}
+
+	var unsignedTxRaw types.SignedTxn
+	var unsignedTxn types.transaction // Transaction
+	msgpack.Decode(dat, &unsignedTxRaw)
+	unsignedTxn = unsignedTxRaw.Txn
+
+	// Let's now sign the transaction for the asset creation process
+	// The next code should read the mnemonic passphrase that was entered offline and together with the wallet address
+	// It should then sign the Asset Tx using those credentials and destroy the file forever
+}
+
+
 
 // Create inserts a new created asset into the database
 func (repo *Repository) Create(ctx context.Context, claims auth.Claims, req CreatedAssetCreateRequest, now time.Time) (*CreatedAsset, error) {
